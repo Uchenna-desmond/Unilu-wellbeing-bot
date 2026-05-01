@@ -16,7 +16,6 @@ load_dotenv()
 
 client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '').strip()
-print(f'Token length: {len(TELEGRAM_TOKEN)}, starts with: {TELEGRAM_TOKEN[:10]}')
 MODEL = 'claude-opus-4-5'
 
 user_sessions = {}
