@@ -50,6 +50,37 @@ CRISIS_MESSAGE_DE = (
 )
 
 
+PRIVACY_NOTICE_EN = (
+    "PRIVACY NOTICE\n\n"
+    "- No personal data is collected or stored.\n"
+    "- Your responses are processed in real time "
+    "and not saved after the session ends.\n"
+    "- Crisis trigger events are logged anonymously "
+    "(no identity, no content).\n"
+    "- This tool complies with the Swiss Federal Act "
+    "on Data Protection (nDSG).\n"
+    "- Questions? Contact: info@pblu.ch"
+)
+
+PRIVACY_NOTICE_DE = (
+    "DATENSCHUTZHINWEIS\n\n"
+    "- Es werden keine personenbezogenen Daten "
+    "gesammelt oder gespeichert.\n"
+    "- Ihre Antworten werden in Echtzeit verarbeitet "
+    "und nach der Sitzung nicht gespeichert.\n"
+    "- Krisenausloeser werden anonym protokolliert "
+    "(keine Identitaet, kein Inhalt).\n"
+    "- Dieses Tool entspricht dem Schweizer "
+    "Datenschutzgesetz (DSG).\n"
+    "- Fragen? Kontakt: info@pblu.ch"
+)
+
+PRIVACY_KEYBOARD = ReplyKeyboardMarkup(
+    [['OK, Continue']],
+    resize_keyboard=True, one_time_keyboard=True
+)
+
+
 DISCLAIMER = (
     "IMPORTANT - Please read before continuing:\n\n"
     "1. This tool screens only. It does not diagnose "
@@ -134,8 +165,8 @@ def get_keyboard(text, lang):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user_sessions[user_id] = {'lang': None, 'agreed': False, 'conversation': [], 'last_active': time.time()}
-    await update.message.reply_text(DISCLAIMER, reply_markup=AGREE_KEYBOARD)
+    user_sessions[user_id] = {'lang': None, 'agreed': False, 'privacy_seen': False, 'conversation': [], 'last_active': time.time()}
+    await update.message.reply_text(PRIVACY_NOTICE_EN, reply_markup=PRIVACY_KEYBOARD)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -158,6 +189,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Update last active
     session['last_active'] = time.time()
+
+    # Privacy notice check
+    if not session.get('privacy_seen'):
+        session['privacy_seen'] = True
+        await update.message.reply_text(DISCLAIMER, reply_markup=AGREE_KEYBOARD)
+        return
 
     # Agreement check
     if not session.get('agreed'):
