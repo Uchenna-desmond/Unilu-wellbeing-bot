@@ -13,6 +13,7 @@ WORKFLOW - follow this exact order:
 
 RULES:
 - One question at a time. Never batch questions.
+- Always show progress before each question e.g. [Question 3 of 16] on its own line.
 - OLBI scale: 1=Always 2=Often 3=Rarely 4=Never
 - PHQ-9 / GAD-7 scale: 0=Not at all 1=Several days 2=More than half the days 3=Nearly every day
 - Accept numeric answers or word answers - interpret flexibly.
@@ -35,6 +36,7 @@ ABLAUF - genau in dieser Reihenfolge:
 
 REGELN:
 - Eine Frage nach der anderen. Niemals Fragen buendeln.
+- Zeigen Sie vor jeder Frage den Fortschritt an, z.B. [Frage 3 von 16] in einer eigenen Zeile.
 - OLBI-Skala: 1=Immer 2=Oft 3=Selten 4=Nie
 - PHQ-9 / GAD-7 Skala: 0=Ueberhaupt nicht 1=An einzelnen Tagen 2=An mehr als der Haelfte der Tage 3=Beinahe jeden Tag
 - Akzeptiere numerische oder Wortantworten - interpretiere flexibel.
