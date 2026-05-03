@@ -7,7 +7,7 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import anthropic
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 logging.basicConfig(
     filename='crisis_log.txt',
@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 
 def log_crisis(reason: str):
-    timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     logging.info(f'{timestamp} | trigger: {reason}')
 
 
