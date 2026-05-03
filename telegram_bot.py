@@ -239,10 +239,26 @@ async def run_agent_turn(user_id):
                 })
             conversation.append({'role': 'user', 'content': tool_results})
 
+
+async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    if user_id in user_sessions:
+        del user_sessions[user_id]
+        await update.message.reply_text(
+            'Screening stopped. Your responses have been cleared.\n\nType /start to begin a new screening.',
+            reply_markup=ReplyKeyboardRemove()
+        )
+    else:
+        await update.message.reply_text(
+            'No active screening found. Type /start to begin.',
+            reply_markup=ReplyKeyboardRemove()
+        )
+
 def main():
     print('Bot starting...')
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler('start', start))
+    app.add_handler(CommandHandler('stop', stop))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print('Bot is running. Press Ctrl+C to stop.')
     app.run_polling()
