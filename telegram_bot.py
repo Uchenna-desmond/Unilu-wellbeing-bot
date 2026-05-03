@@ -238,7 +238,7 @@ async def run_agent_turn(user_id):
             for block in response.content:
                 if block.type != 'tool_use':
                     continue
-                result_str = dispatch(block.name, block.input)
+                result_str = dispatch(block.name, block.input, lang)
                 result = json.loads(result_str)
 
                 if block.name == 'score_phq9' and result.get('crisis_flag'):

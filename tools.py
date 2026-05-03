@@ -61,8 +61,11 @@ GAD7_ITEMS = [
     "Feeling afraid, as if something awful might happen",
 ]
 
-def get_olbi_question(role, question_index):
-    items = OLBI_S_ITEMS if role == "student" else OLBI_ITEMS
+def get_olbi_question(role, question_index, lang='en'):
+    if lang == 'de':
+        items = OLBI_S_ITEMS_DE if role == 'student' else OLBI_ITEMS_DE
+    else:
+        items = OLBI_S_ITEMS if role == 'student' else OLBI_ITEMS
     if question_index >= len(items):
         return {"error": "Index out of range"}
     return {
@@ -72,23 +75,25 @@ def get_olbi_question(role, question_index):
         "scale": "1=Always  2=Often  3=Rarely  4=Never",
     }
 
-def get_phq9_question(question_index):
-    if question_index >= len(PHQ9_ITEMS):
+def get_phq9_question(question_index, lang='en'):
+    items = PHQ9_ITEMS_DE if lang == 'de' else PHQ9_ITEMS
+    if question_index >= len(items):
         return {"error": "Index out of range"}
     return {
         "question_index": question_index,
         "total": len(PHQ9_ITEMS),
-        "question": PHQ9_ITEMS[question_index],
+        "question": items[question_index],
         "scale": "0=Not at all  1=Several days  2=More than half the days  3=Nearly every day",
     }
 
-def get_gad7_question(question_index):
-    if question_index >= len(GAD7_ITEMS):
+def get_gad7_question(question_index, lang='en'):
+    items = GAD7_ITEMS_DE if lang == 'de' else GAD7_ITEMS
+    if question_index >= len(items):
         return {"error": "Index out of range"}
     return {
         "question_index": question_index,
         "total": len(GAD7_ITEMS),
-        "question": GAD7_ITEMS[question_index],
+        "question": items[question_index],
         "scale": "0=Not at all  1=Several days  2=More than half the days  3=Nearly every day",
     }
 
@@ -138,13 +143,13 @@ def score_gad7(answers):
     else: severity = "severe"
     return {"total": total, "severity": severity}
 
-def dispatch(tool_name, tool_input):
+def dispatch(tool_name, tool_input, lang='en'):
     if tool_name == "get_olbi_question":
-        result = get_olbi_question(tool_input["role"], tool_input["question_index"])
+        result = get_olbi_question(tool_input["role"], tool_input["question_index"], lang)
     elif tool_name == "get_phq9_question":
-        result = get_phq9_question(tool_input["question_index"])
+        result = get_phq9_question(tool_input["question_index"], lang)
     elif tool_name == "get_gad7_question":
-        result = get_gad7_question(tool_input["question_index"])
+        result = get_gad7_question(tool_input["question_index"], lang)
     elif tool_name == "score_burnout":
         result = score_burnout(tool_input["role"], tool_input["answers"])
     elif tool_name == "score_phq9":
