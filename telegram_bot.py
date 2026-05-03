@@ -36,6 +36,26 @@ CRISIS_MESSAGE_DE = (
     'Du musst das nicht alleine tragen. Das Screening wurde pausiert.'
 )
 
+
+DISCLAIMER = (
+    "IMPORTANT - Please read before continuing:\n\n"
+    "1. This tool screens only. It does not diagnose "
+    "any medical or psychiatric condition.\n\n"
+    "2. Your responses are not stored or shared with "
+    "anyone at the University of Lucerne.\n\n"
+    "3. This is not an emergency service. If you are "
+    "in crisis, contact:\n"
+    "   Die Dargebotene Hand: 143\n\n"
+    "4. By continuing, you confirm you are a student "
+    "or staff member of the University of Lucerne.\n\n"
+    "Do you agree to proceed?"
+)
+
+AGREE_KEYBOARD = ReplyKeyboardMarkup(
+    [['I Agree', 'I Do Not Agree']],
+    resize_keyboard=True, one_time_keyboard=True
+)
+
 LANG_KEYBOARD = ReplyKeyboardMarkup(
     [['English', 'Deutsch']],
     resize_keyboard=True, one_time_keyboard=True
@@ -101,11 +121,8 @@ def get_keyboard(text, lang):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user_sessions[user_id] = {'lang': None, 'conversation': []}
-    await update.message.reply_text(
-        WELCOME_EN,
-        reply_markup=LANG_KEYBOARD
-    )
+    user_sessions[user_id] = {'lang': None, 'agreed': False, 'conversation': []}
+    await update.message.reply_text(DISCLAIMER, reply_markup=AGREE_KEYBOARD)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -116,6 +133,19 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session = user_sessions[user_id]
+
+    # Agreement check
+    if not session.get('agreed'):
+        if user_input == 'I Agree':
+            session['agreed'] = True
+            await update.message.reply_text(WELCOME_EN, reply_markup=LANG_KEYBOARD)
+        else:
+            await update.message.reply_text(
+                'You have not agreed to the terms. Type /start to try again.',
+                reply_markup=ReplyKeyboardRemove()
+            )
+            del user_sessions[user_id]
+        return
 
     # Language selection step
     if session['lang'] is None:
