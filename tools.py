@@ -61,6 +61,67 @@ GAD7_ITEMS = [
     "Feeling afraid, as if something awful might happen",
 ]
 
+
+OLBI_S_ITEMS_DE = [
+    {"text": "Es gibt Tage, an denen ich mich muede fuehle, bevor ich in die Schule komme.", "reverse": False},
+    {"text": "Ich kann den Druck meiner schulischen Arbeit sehr gut tolerieren.", "reverse": True},
+    {"text": "Nach dem Lernen brauche ich mehr Zeit als frueher, um mich zu entspannen.", "reverse": False},
+    {"text": "Ich kann die Inhalte meines Studiums sehr gut aushalten.", "reverse": True},
+    {"text": "In letzter Zeit denke ich in der Schule weniger und erledige meine Arbeit fast mechanisch.", "reverse": False},
+    {"text": "Ich empfinde mein Studium als positive Herausforderung.", "reverse": True},
+    {"text": "Waehrend meines Studiums fuehle ich mich oft emotional erschoepft.", "reverse": False},
+    {"text": "Im Laufe der Zeit kann man sich von diesem Studium distanzieren.", "reverse": False},
+    {"text": "Nach dem Lernen habe ich genuegend Energie fuer meine Freizeitaktivitaeten.", "reverse": True},
+    {"text": "Manchmal ekelt mich der Lernstoff meines Studiums an.", "reverse": False},
+    {"text": "Wenn ich lerne, fuehle ich mich normalerweise energiegeladen.", "reverse": True},
+    {"text": "Ich bin weniger begeistert von meinem Studium geworden.", "reverse": False},
+    {"text": "Bei der Arbeit fuehle ich mich oft abgekaempft und muede.", "reverse": False},
+    {"text": "Ich finde die Inhalte meines Studiums anregend.", "reverse": True},
+    {"text": "In meinem Studium habe ich eine zynische Einstellung entwickelt.", "reverse": False},
+    {"text": "Ich fuehle mich begeistert, wenn ich etwas in meinem Studium erreiche.", "reverse": True},
+]
+
+OLBI_ITEMS_DE = [
+    {"text": "Es gibt Tage, an denen ich mich muede fuehle, bevor ich zur Arbeit komme.", "reverse": False},
+    {"text": "Ich kann den Druck meiner Arbeit sehr gut tolerieren.", "reverse": True},
+    {"text": "Nach der Arbeit brauche ich mehr Zeit als frueher, um mich zu entspannen.", "reverse": False},
+    {"text": "Ich kann die Inhalte meiner Arbeit sehr gut aushalten.", "reverse": True},
+    {"text": "In letzter Zeit denke ich bei der Arbeit weniger und erledige meine Aufgaben fast mechanisch.", "reverse": False},
+    {"text": "Ich empfinde meine Arbeit als positive Herausforderung.", "reverse": True},
+    {"text": "Waehrend meiner Arbeit fuehle ich mich oft emotional erschoepft.", "reverse": False},
+    {"text": "Im Laufe der Zeit kann man sich von dieser Art von Arbeit distanzieren.", "reverse": False},
+    {"text": "Nach der Arbeit habe ich genuegend Energie fuer meine Freizeitaktivitaeten.", "reverse": True},
+    {"text": "Manchmal ekelt mich der Inhalt meiner Arbeit an.", "reverse": False},
+    {"text": "Wenn ich arbeite, fuehle ich mich normalerweise energiegeladen.", "reverse": True},
+    {"text": "Ich bin weniger begeistert von meiner Arbeit geworden.", "reverse": False},
+    {"text": "Bei der Arbeit fuehle ich mich oft abgekaempft und muede.", "reverse": False},
+    {"text": "Ich finde den Inhalt meiner Arbeit anregend.", "reverse": True},
+    {"text": "In meiner Arbeit habe ich eine zynische Einstellung entwickelt.", "reverse": False},
+    {"text": "Ich fuehle mich begeistert, wenn ich etwas bei der Arbeit erreiche.", "reverse": True},
+]
+
+PHQ9_ITEMS_DE = [
+    "Wenig Interesse oder Freude an Ihren Taetigkeiten",
+    "Niedergeschlagenheit, Schwermut oder Hoffnungslosigkeit",
+    "Schwierigkeiten, ein- oder durchzuschlafen, oder vermehrter Schlaf",
+    "Muedigkeit oder Gefuehl, keine Energie zu haben",
+    "Verminderter Appetit oder uebertriebenes Essbeduerfnis",
+    "Schlechte Meinung von sich selbst; Gefuehl, ein Versager zu sein",
+    "Schwierigkeiten, sich zu konzentrieren",
+    "Sich auffaellig langsam bewegen oder sprechen, oder im Gegenteil sehr unruhig sein",
+    "Gedanken, dass Sie besser tot waeren oder sich Verletzungen zufuegen",
+]
+
+GAD7_ITEMS_DE = [
+    "Nervositaet, Aengstlichkeit oder Anspannung",
+    "Nicht in der Lage sein, Sorgen zu stoppen oder zu kontrollieren",
+    "Uebertriebene Sorgen ueber verschiedene Angelegenheiten",
+    "Schwierigkeiten zu entspannen",
+    "Unruhe, so dass Stillsitzen schwerfaellt",
+    "Leichte Reizbarkeit oder Gereiztheit",
+    "Gefuehl der Angst, so als wuerde etwas Schreckliches passieren",
+]
+
 def get_olbi_question(role, question_index, lang='en'):
     if lang == 'de':
         items = OLBI_S_ITEMS_DE if role == 'student' else OLBI_ITEMS_DE
