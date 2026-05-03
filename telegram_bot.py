@@ -6,6 +6,18 @@ from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import anthropic
+import logging
+from datetime import datetime
+
+logging.basicConfig(
+    filename='crisis_log.txt',
+    level=logging.INFO,
+    format='%(message)s'
+)
+
+def log_crisis(reason: str):
+    timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    logging.info(f'{timestamp} | trigger: {reason}')
 
 
 from prompts import SYSTEM_PROMPT_EN, SYSTEM_PROMPT_DE, TOOL_DEFINITIONS
@@ -166,6 +178,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Crisis check
     if check_free_text(user_input):
+        log_crisis('free_text')
         msg = CRISIS_MESSAGE_DE if session['lang'] == 'de' else CRISIS_MESSAGE_EN
         await update.message.reply_text(msg, reply_markup=REMOVE_KEYBOARD)
         del user_sessions[user_id]
@@ -216,6 +229,7 @@ async def run_agent_turn(user_id):
                 result = json.loads(result_str)
 
                 if block.name == 'score_phq9' and result.get('crisis_flag'):
+                    log_crisis('phq9_q9')
                     return '', True
 
                 tool_results.append({
