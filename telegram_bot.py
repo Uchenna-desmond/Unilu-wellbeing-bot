@@ -8,6 +8,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 import anthropic
 import logging
 from datetime import datetime, timezone
+import time
 
 logging.basicConfig(
     filename='crisis_log.txt',
@@ -133,7 +134,7 @@ def get_keyboard(text, lang):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user_sessions[user_id] = {'lang': None, 'agreed': False, 'conversation': []}
+    user_sessions[user_id] = {'lang': None, 'agreed': False, 'conversation': [], 'last_active': time.time()}
     await update.message.reply_text(DISCLAIMER, reply_markup=AGREE_KEYBOARD)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -145,6 +146,18 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session = user_sessions[user_id]
+
+    # Timeout check — 30 minutes
+    if time.time() - session.get('last_active', 0) > 1800:
+        del user_sessions[user_id]
+        await update.message.reply_text(
+            'Your session expired after 30 minutes of inactivity. Type /start to begin again.',
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return
+
+    # Update last active
+    session['last_active'] = time.time()
 
     # Agreement check
     if not session.get('agreed'):
