@@ -71,7 +71,7 @@ Conversation so far:
 
 Continue the conversation. If you need to call a tool, use the format above. Otherwise respond normally."""
 
-    model = genai.GenerativeModel('gemini-2.0-flash')
+    model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
     while True:
         response = model.generate_content(full_prompt)
