@@ -3,7 +3,7 @@ import streamlit as st
 import json
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+import anthropic
 
 load_dotenv()
 
@@ -11,7 +11,8 @@ from prompts import SYSTEM_PROMPT_EN, SYSTEM_PROMPT_DE, TOOL_DEFINITIONS
 from tools import dispatch
 from safety import check_free_text
 
-genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+client = anthropic.Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
+MODEL = 'claude-opus-4-5'
 
 CRISIS_MESSAGE = (
     'IMMEDIATE SUPPORT AVAILABLE\n\n'
@@ -33,102 +34,62 @@ if 'crisis' not in st.session_state:
 if 'messages' not in st.session_state:
     st.session_state.messages = []
 
-def build_prompt():
-    parts = []
-    for msg in st.session_state.conversation:
-        role = msg['role']
-        content = msg['content']
-        if isinstance(content, list):
-            for block in content:
-                if isinstance(block, dict):
-                    if block.get('type') == 'text':
-                        parts.append(f"{role}: {block['text']}")
-                    elif block.get('type') == 'tool_result':
-                        parts.append(f"tool_result: {block['content']}")
+def serialize_content(content_blocks):
+    result = []
+    for block in content_blocks:
+        if hasattr(block, 'type'):
+            if block.type == 'text':
+                result.append({'type': 'text', 'text': block.text})
+            elif block.type == 'tool_use':
+                result.append({
+                    'type': 'tool_use',
+                    'id': block.id,
+                    'name': block.name,
+                    'input': block.input
+                })
         else:
-            parts.append(f"{role}: {content}")
-    return '\n'.join(parts)
+            result.append(block)
+    return result
 
 def run_agent_turn():
     lang = st.session_state.lang
     system_prompt = SYSTEM_PROMPT_DE if lang == 'de' else SYSTEM_PROMPT_EN
 
-    tool_desc = '\n'.join([
-        f"- {t['name']}: {t['description']}" for t in TOOL_DEFINITIONS
-    ])
-
-    full_prompt = f"""{system_prompt}
-
-Available tools:
-{tool_desc}
-
-To call a tool, respond with exactly:
-TOOL_CALL: tool_name
-INPUT: {{"key": "value"}}
-
-Conversation so far:
-{build_prompt()}
-
-Continue the conversation. If you need to call a tool, use the format above. Otherwise respond normally."""
-
-    model = genai.GenerativeModel('gemini-2.0-flash-lite')
-
     while True:
-        response = model.generate_content(full_prompt)
-        text = response.text.strip()
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=1024,
+            system=system_prompt,
+            tools=TOOL_DEFINITIONS,
+            messages=st.session_state.conversation,
+        )
 
-        if 'TOOL_CALL:' in text:
-            lines = text.split('\n')
-            tool_name = None
-            tool_input = {}
-            for line in lines:
-                if line.startswith('TOOL_CALL:'):
-                    tool_name = line.replace('TOOL_CALL:', '').strip()
-                if line.startswith('INPUT:'):
-                    try:
-                        tool_input = json.loads(line.replace('INPUT:', '').strip())
-                    except:
-                        tool_input = {}
+        serialized = serialize_content(response.content)
+        st.session_state.conversation.append({'role': 'assistant', 'content': serialized})
 
-            if tool_name:
-                result_str = dispatch(tool_name, tool_input, lang)
+        for block in serialized:
+            if block.get('type') == 'text' and block.get('text', '').strip():
+                st.session_state.messages.append({'role': 'assistant', 'content': block['text'].strip()})
+
+        if response.stop_reason == 'end_turn':
+            break
+
+        if response.stop_reason == 'tool_use':
+            tool_results = []
+            for block in serialized:
+                if block.get('type') != 'tool_use':
+                    continue
+                result_str = dispatch(block['name'], block['input'], lang)
                 result = json.loads(result_str)
-
-                if tool_name == 'score_phq9' and result.get('crisis_flag'):
+                if block['name'] == 'score_phq9' and result.get('crisis_flag'):
                     st.session_state.crisis = True
                     return
-
-                st.session_state.conversation.append({
-                    'role': 'assistant',
-                    'content': [{'type': 'text', 'text': text}]
+                tool_results.append({
+                    'type': 'tool_result',
+                    'tool_use_id': block['id'],
+                    'content': result_str,
                 })
-                st.session_state.conversation.append({
-                    'role': 'user',
-                    'content': [{'type': 'tool_result', 'content': result_str}]
-                })
-
-                full_prompt = f"""{system_prompt}
-
-Available tools:
-{tool_desc}
-
-To call a tool, respond with exactly:
-TOOL_CALL: tool_name
-INPUT: {{"key": "value"}}
-
-Conversation so far:
-{build_prompt()}
-
-Continue the conversation."""
-                continue
-        else:
-            st.session_state.conversation.append({
-                'role': 'assistant',
-                'content': [{'type': 'text', 'text': text}]
-            })
-            if text:
-                st.session_state.messages.append({'role': 'assistant', 'content': text})
-            break
+            st.session_state.conversation.append({'role': 'user', 'content': tool_results})
 
 if st.session_state.lang is None:
     st.markdown('### Welcome / Willkommen')
