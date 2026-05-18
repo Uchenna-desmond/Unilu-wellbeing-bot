@@ -39,6 +39,8 @@ def run_agent_turn():
     lang = st.session_state.lang
     system_prompt = SYSTEM_PROMPT_DE if lang == 'de' else SYSTEM_PROMPT_EN
     while True:
+        import json as _json
+        st.write("DEBUG conversation:", _json.dumps(st.session_state.conversation, indent=2))
         response = client.messages.create(
             model=MODEL,
             max_tokens=1024,
