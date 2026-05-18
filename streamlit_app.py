@@ -46,7 +46,13 @@ def run_agent_turn():
             tools=TOOL_DEFINITIONS,
             messages=st.session_state.conversation,
         )
-        st.session_state.conversation.append({'role': 'assistant', 'content': response.content})
+        serialized = []
+        for block in response.content:
+            if block.type == 'text':
+                serialized.append({'type': 'text', 'text': block.text})
+            elif block.type == 'tool_use':
+                serialized.append({'type': 'tool_use', 'id': block.id, 'name': block.name, 'input': block.input})
+        st.session_state.conversation.append({'role': 'assistant', 'content': serialized})
         for block in response.content:
             if hasattr(block, 'text') and block.text.strip():
                 st.session_state.messages.append({'role': 'assistant', 'content': block.text.strip()})
