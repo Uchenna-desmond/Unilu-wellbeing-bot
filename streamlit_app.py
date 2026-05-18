@@ -46,18 +46,26 @@ def run_agent_turn():
             tools=TOOL_DEFINITIONS,
             messages=st.session_state.conversation,
         )
+
+        # Serialize assistant content to plain dicts
         serialized = []
         for block in response.content:
             if block.type == 'text':
                 serialized.append({'type': 'text', 'text': block.text})
+                if block.text.strip():
+                    st.session_state.messages.append({'role': 'assistant', 'content': block.text.strip()})
             elif block.type == 'tool_use':
-                serialized.append({'type': 'tool_use', 'id': block.id, 'name': block.name, 'input': block.input})
+                serialized.append({
+                    'type': 'tool_use',
+                    'id': block.id,
+                    'name': block.name,
+                    'input': block.input
+                })
         st.session_state.conversation.append({'role': 'assistant', 'content': serialized})
-        for block in response.content:
-            if hasattr(block, 'text') and block.text.strip():
-                st.session_state.messages.append({'role': 'assistant', 'content': block.text.strip()})
+
         if response.stop_reason == 'end_turn':
             break
+
         if response.stop_reason == 'tool_use':
             tool_results = []
             for block in response.content:
